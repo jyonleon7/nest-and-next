@@ -1,4 +1,58 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { AuthService } from './auth.service';
+import { AuthDto } from './dto/auth.dto';
+import { Msg } from './interfaces/auth.interface';
 
 @Controller('auth')
-export class AuthController {}
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('signup')
+  async signUp(@Body() authDto: AuthDto): Promise<Msg> {
+    return await this.authService.singUp(authDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  async login(
+    @Body() authDto: AuthDto,
+    // res を使用してcookie を使用すると、return値がJSONにならないため、passthrough:true をつける
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Msg> {
+    const jwt = await this.authService.login(authDto);
+    // cookie に jwt.accessTokenを付与する
+    res.cookie('access_token', jwt.accessToken, {
+      httpOnly: true,
+      // default は chrome の場合にcookieがセットできないので、noneにする
+      sameSite: 'none',
+      // https かどうか
+      secure: false,
+      path: '/',
+    });
+    return {
+      message: 'ok',
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.cookie('access_token', '', {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: false,
+      path: '/',
+    });
+    return {
+      message: 'ok',
+    };
+  }
+}
