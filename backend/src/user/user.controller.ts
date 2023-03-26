@@ -1,27 +1,35 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
-  Param,
-  Post,
+  Patch,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { User } from '@prisma/client';
+import { Request } from 'express';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Get()
+  getLoginUser(@Req() req: Request): Omit<User, 'hashedPassword'> {
+    return req.user;
+  }
+
   @HttpCode(HttpStatus.OK)
-  @Post(':id')
+  @Patch()
   async updateuser(
-    @Param('id') id: string,
+    @Req() req: Request,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<Omit<User, 'hashedPassword'>> {
-    const userId = Number(id);
-    const user = await this.userService.updateUser(userId, updateUserDto);
-    return user;
+    return await this.userService.updateUser(req.user.id, updateUserDto);
   }
 }
