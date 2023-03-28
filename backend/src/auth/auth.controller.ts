@@ -43,7 +43,7 @@ export class AuthController {
       // default は chrome の場合にcookieがセットできないので、noneにする
       sameSite: 'none',
       // https かどうか
-      secure: false,
+      secure: true,
       path: '/',
     });
     return {
@@ -57,7 +57,7 @@ export class AuthController {
     res.cookie('access_token', '', {
       httpOnly: true,
       sameSite: 'none',
-      secure: false,
+      secure: true,
       path: '/',
     });
     return {

@@ -1,5 +1,3 @@
-import { InputDescriptionProps } from '@mantine/core'
-
 export type AuthForm = {
   email: string
   password: string

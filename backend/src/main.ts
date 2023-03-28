@@ -14,7 +14,7 @@ async function bootstrap() {
     // 今回はcookie から取得するため。
     credentials: true,
     // Next.js のIP
-    origin: ['http://localhost:3001'],
+    origin: ['http://localhost:3000'],
   });
   // フロントエンドから受け取ったcookie を解析できるようにするためのもの
   app.use(cookieParser());
@@ -23,7 +23,7 @@ async function bootstrap() {
       cookie: {
         httpOnly: true,
         sameSite: 'none',
-        secure: false,
+        secure: true,
       },
       value: (req: Request) => {
         return req.header('csrf-token');
