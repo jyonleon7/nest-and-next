@@ -18,6 +18,16 @@ const queryClient = new QueryClient({
 })
 
 function MyApp({ Component, pageProps }: AppProps) {
+    // frontend と backend でのcookieのやり取りを行う場合には、以下をtrue にする必要がある。
+    axios.defaults.withCredentials = true
+    useEffect(() => {
+      (async() => {
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/csrf`
+        )
+        axios.defaults.headers.common['csrf-token'] = data.csrfToken
+      })()
+    })
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider
